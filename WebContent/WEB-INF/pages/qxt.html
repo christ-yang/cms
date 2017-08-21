@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>折线图</title>
+<!-- 引入 echarts.js -->
+    <script src="https://cdn.bootcss.com/echarts/3.6.2/echarts.common.min.js"></script>
+</head>
+<body>
+	<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="width: 900px;height:200px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        // 指定图表的配置项和数据
+        var option = {
+    			title : {
+    				text : "较年初增幅 ",
+    				y : 'top',
+    				x : 'center'
+    			},
+    			toolbox : {
+    				show : true,
+    				feature : {
+    					/* mark : {
+    						show : true
+    					},
+    					dataView : {
+    						show : true,
+    						readOnly : false
+    					}, */
+    					magicType : {
+    						show : true,
+    						type : [ 'line', 'bar', 'stack', 'tiled' ],
+    						y : 'top',
+    						x : 'left'
+    					},
+    					/* restore : {
+    						show : true
+    					}, */
+    					saveAsImage : {
+    						show : true
+    					}
+    				}
+    			},
+    			tooltip : {
+    				trigger : 'axis',
+    			},
+    			legend : {
+    				data : ['较年初增幅'],
+    				y : 'bottom',
+    				x : 'left'
+    			},
+    			grid : {
+    				left : '3%',
+    				right : '4%',
+    				bottom : '10%',
+    				containLabel : true
+    			},
+    			calculable : true,
+    			xAxis : [ {
+    				type : 'category',
+    				boundaryGap : false,
+    				data : [ '现金及存放央行准备金', '存放同业款项', '买入返售债券', '交易性金融资产', '可供出售金融资产', '持有至到期投资', '贴现', '拆放非银同业', '应收账款项类金融投资总额', '贷款', '股权投资', '固定资产净值', '其他资产'],
+    				axisLabel : {
+    					interval:0,
+    					formatter:function(value)  
+                        {  
+                            debugger  
+                            var ret = "";//拼接加\n返回的类目项  
+                            var maxLength = 4;//每项显示文字个数  
+                            var valLength = value.length;//X轴类目项的文字个数  
+                            var rowN = Math.ceil(valLength / maxLength); //类目项需要换行的行数  
+                            if (rowN > 1)//如果类目项的文字大于3,  
+                            {  
+                                for (var i = 0; i < rowN; i++) {  
+                                    var temp = "";//每次截取的字符串  
+                                    var start = i * maxLength;//开始截取的位置  
+                                    var end = start + maxLength;//结束截取的位置  
+                                    //这里也可以加一个是否是最后一行的判断，但是不加也没有影响，那就不加吧  
+                                    temp = value.substring(start, end) + "\n";  
+                                    ret += temp; //拼接最终的字符串  
+                                }  
+                                return ret;  
+                            }  
+                            else {  
+                                return value;  
+                            }  
+                        }  
+    				}
+    			} ],
+    			yAxis : [ {
+    				type : 'value',
+    	            axisLabel : {
+    	                formatter: '{value}%'
+    	            }
+    			} ],
+    			series : [
+    	        	        {
+    	        	            name:'',
+    	        	            type:'line',
+    	        	          	itemStyle : { normal: { color:'#FF6633', label : {show: true, position: 'top', formatter: '{c}%' }}},
+    	        	            data:[ 10.05, 24.79, 16.00, 25.00, 33.67, 14.00, -21.00, 24.30, 35.27, 31.44, 0.00, 1.78, 15.42, 24.69]
+    	        	        }
+    	        	    ]
+    		};
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

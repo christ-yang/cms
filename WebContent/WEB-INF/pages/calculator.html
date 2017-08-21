@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>计算器</title>
+<script src="http://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+function cal(term, amount, yrate, zcqs, interest_tol) {
+	var interest = amount * (yrate * 0.01 * term / 12);//计算获取利息
+	var total = (amount * 1 + interest * 1).toFixed(2);
+	interest_tol = interest_tol + interest;
+	zcqs = zcqs - 1;
+	if (zcqs <= 0) {
+		return {
+			'interest' : interest,
+			'total' : total,
+			'interest_tol' : interest_tol
+		};
+	}
+	return cal(term, total, yrate, zcqs, interest_tol);
+}
+
+/**
+ * 整存整取
+ * @param amount 初始存入金额
+ * @param zcqs 转存期数
+ * @param qxbm 期限
+ * @param yrate 执行价格
+ * @returns YQLXJE:一期利息金额, YQLXSJ:一期利息税金额, YQBXHJ:一期本息合计,
+		DQLXJE:转存多期利息金额, DQLXSJ:转存多期利息税金额,DQBXHJ:转存多期本息合计
+ */
+function calZCZQ(amount, zcqs, qxbm, yrate) {//整存整取 
+	if (amount <= 0) {
+		alert("请输入正确的初始存入金额！");
+		return;
+	}
+	if (zcqs <= 0) {
+		alert("请输入正确的转存期数！");
+		return;
+	}
+	var term = 0;//期限这算月份
+	if (qxbm < 200) {
+		alert("请选择正确的期限数据！");
+		return;
+	} else if (qxbm < 300) {
+		var ys = qxbm % 200;
+		term = ys;
+	} else if (qxbm > 300) {
+		var ns = qxbm % 300;
+		term = ns * 12;
+	}
+
+	/* var interest = amount * (yrate * 0.01 * term / 12); */
+	var data1 = cal(term, amount, yrate, 1, 0);
+	var data2 = cal(term, amount, yrate, zcqs, 0);
+	var data = {'YQLXJE':data1.interest.toFixed(2), 'YQLXSJ':0, 'YQBXHJ':data1.total,
+		'DQLXJE':data2.interest_tol.toFixed(2), 'DQLXSJ':0,'DQBXHJ':data2.total};
+	return data;
+}
+
+	$(document).ready(function(){
+		$('#button').bind('click', 
+				function(){
+					var amount = $('#amount').val();
+					var zcqs = $('#zcqs').val();
+					var qxbm = $('#qxbm').val();
+					var yrate = $('#yrate').val();
+					var data = calZCZQ(amount, zcqs, qxbm, yrate);
+						$('#return').val(data.SDLX);
+				});
+	});
+</script>
+</head>
+<body>
+	<div>
+		<input id="amount" type="text"><br/>
+		<input id="zcqs" type="text"><br/>
+		<input id="qxbm" type="text"><br/>
+		<input id="yrate" type="text"><br/>
+		<input id="button" type="button" value="计算"><br/>
+		
+	</div>
+	<div><textarea id="return"></textarea></div>
+</body>
+</html>

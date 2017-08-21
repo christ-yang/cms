@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>
+            easyui-combobox多选
+        </title>
+        <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+        <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+        <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js">
+        </script>
+    </head>
+    <body>
+        <select id="ROLE_ID" data-options="multiple:true,panelHeight:'auto'"
+        class="esayui-combobox" style="width:200px;">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <c:forEach items="${roleList }" var="role">
+				            <option value="${role.ROLE_ID }">${role.ROLE_NAME }</option>
+				        </c:forEach>
+        </select>
+    </body>
+    <script type="text/javascript">
+        $('#ROLE_ID').combobox({
+            onChange: function() {
+                var value = $('#ROLE_ID').combobox('getValues');
+                console.log(value);
+                console.log(value.join(','));
+                
+            }
+        });
+    </script>
+
+</html>
