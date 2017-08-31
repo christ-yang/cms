@@ -12,6 +12,13 @@ public class Digui {
 		}
 	}
 	
+	public static long fu(long num){
+		if (num > 2) {
+			return num*fu(num-1);
+		}
+		return num;
+	}
+	
 	public static void main(String[] args) {
 		long a = 1493;
 		System.out.println(a+"!="+fun(a,BigInteger.valueOf(1)));
