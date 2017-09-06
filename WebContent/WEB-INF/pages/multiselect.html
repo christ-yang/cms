@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>多选下拉列表</title>
+	
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+	<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!-- 	<link href="https://cdn.bootcss.com/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
+ -->
+ 	<link href="https://cdn.bootcss.com/multiple-select/1.2.0/multiple-select.css" rel="stylesheet">
+ 	<script src="https://cdn.bootcss.com/multiple-select/1.2.0/multiple-select.js"></script>
+ 	
+	<script type="text/javascript">
+		$(function(){
+			$(function () {
+			    $('#sel_search_orderstatus').multipleSelect({
+					placeholder: "请选择"
+				});
+			})
+			$('#button').bind('click', function(){
+				var va = $('#sel_search_orderstatus').value;
+				alert(va);
+			})
+		})
+	</script>
+</head>
+<body>
+	<label class="control-label col-xs-1" for="sel_search_orderstatus">多选站点</label>
+     <div class="col-xs-2" style="margin-top:7px;">
+         <select id="sel_search_orderstatus" style="width:150px" multiple="multiple">
+             <option value="0">未排产</option>
+             <option value="5">已排产</option>
+             <option value="10">已锁定</option>
+             <option value="25">在制</option>
+             <option value="20">订单提交</option>
+             <option value="30">订单删除</option>
+             <option value="50">订单报废</option>
+             <option value="55">9999999999</option>
+             <option value="60">9999999999999999999999999</option>
+         </select>
+         <input type="button" value="确定" id="button">
+     </div>
+</body>
+</html>
