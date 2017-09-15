@@ -21,7 +21,10 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import commons.util.StringUtil;
@@ -51,20 +54,22 @@ public class ExcelExportHandler {
 		this.excelExportConfig = new ExcelExportConfig(modelFile);
 	}
 
-	public <T> ExcelExportHandler process(T data, Map title, Map foot) {
+	public <T> ExcelExportHandler process(T data, Map title, Map foot, Map params) {
 		if (hasInit) {
 			logger.warn("重复处理导出数据，直接忽略");
 			return this;
 		}
 		if (null == data) {
 			logger.warn("处理导出数据为null，直接忽略");
-			return this;
+//			return this;
 		}
 		hasInit = true;
 		final HSSFWorkbook wb = excelExportConfig.getWorkbook();
 		for (ExcelExportConfig.SheetExportConfig config : excelExportConfig
 				.getSheetExportConfigs()) {
 			final HSSFSheet sheet = wb.getSheetAt(config.getSheetIdx());
+			
+			
 			final String varName = config.getVarName();
 			Object listObj = data;
 			if (!"this".equalsIgnoreCase(varName)) {
@@ -185,11 +190,88 @@ public class ExcelExportHandler {
 			if (null != foot) {
 			}
 
+			String jgjb = (String) params.get("ORG_JGJB");
+			if (StringUtil.isNotEmpty(jgjb)) {
+				int orgColStartIdx = config.getOrgColStartIdx();
+				int orgColEndIdx = config.getOrgColEndIdx();
+				int colNum = (Integer.valueOf(jgjb)+1)/2;
+				this.deleteColumn(sheet, orgColStartIdx+colNum, orgColEndIdx);
+			}
+			String txjb = (String) params.get("DEP_TXJB");
+			if (StringUtil.isNotEmpty(txjb)) {
+				int orgColStartIdx = config.getOrgColStartIdx();
+				int orgColEndIdx = config.getOrgColEndIdx();
+				int colNum = Integer.valueOf(txjb);
+				this.deleteColumn(sheet, orgColStartIdx+colNum, orgColEndIdx);
+			}
+			
 		}
-
 		return this;
 	}
+	
+	/**
+	 * 整列删除
+	 * @param sheet
+	 * @param delStartColumn  删除开始列
+	 * @param delEndColumn	删除结束列
+	 */
+	private void deleteColumn(HSSFSheet sheet, int delStartColumn, int delEndColumn){
+		int delColNum = delEndColumn - delStartColumn + 1;
+		if (delEndColumn > delStartColumn) {
+			logger.warn("删除列错误！");
+			return;
+		}
+		
+		//处理合并的单元格
+		List<CellRangeAddress> mergedRegions = sheet.getMergedRegions();
+		//删除单元格
+		int numMergedRegions = sheet.getNumMergedRegions();
+		for (int i = 0; i < numMergedRegions; i++) {
+			sheet.removeMergedRegion(i);
+		}
+		
+		//删除列
+		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+			HSSFRow row = sheet.getRow(i);
+			
+			//row不存在，跳过
+			if (row == null) {
+				continue;
+			}
+			
+			int lastColumn = row.getLastCellNum();
+			if (lastColumn < delStartColumn || lastColumn < delEndColumn) {
+				continue;
+			}
+			for (int j = delStartColumn; j <= lastColumn; j++) {
+				HSSFCell ocell =row.getCell(j);
+				row.removeCell(ocell);
+				HSSFCell ncell = row.getCell(j+delColNum);
+				row.moveCell(ncell, (short) j);
+			}
+		}
+		
+		//合并单元格
+		CellRangeAddress cellRangeAddress = null;
+		int fColumn = 0;
+		int lColumn = 0;
+		for (int i = 0; i < mergedRegions.size(); i++) {
+			cellRangeAddress = mergedRegions.get(i);
+			fColumn = cellRangeAddress.getFirstColumn();
+			lColumn = cellRangeAddress.getLastColumn();
+			if (fColumn > delEndColumn) {
+				cellRangeAddress.setFirstColumn(fColumn-delColNum);
+				cellRangeAddress.setLastColumn(lColumn-delColNum);
+				sheet.addMergedRegion(cellRangeAddress);
+			} else if (lColumn < delStartColumn) {
+				sheet.addMergedRegion(cellRangeAddress);
+			}
+		}
+		
+	}
 
+	
+	
 	/**
 	 * 合并值相同的行
 	 * 

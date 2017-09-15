@@ -14,7 +14,11 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -23,11 +27,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
 
@@ -43,19 +42,19 @@ public class ExportTest {
 	 */
 	public void export(){
 		//声明一个工作薄
-		XSSFWorkbook wb = new XSSFWorkbook();
+		HSSFWorkbook wb = new HSSFWorkbook();
 		//声明一个单子并命名
-		XSSFSheet sheet = wb.createSheet("学生表");
+		HSSFSheet sheet = wb.createSheet("学生表");
 		//给单子名称一个长度
 		sheet.setDefaultColumnWidth(15);
 		//生成样式
-		XSSFCellStyle style = wb.createCellStyle();
+		HSSFCellStyle style = wb.createCellStyle();
 		//创建表头
-		XSSFRow row = sheet.createRow(0);
+		HSSFRow row = sheet.createRow(0);
 		//样式字体居中
 		style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
 		//给表头第一行一次创建单元格
-		XSSFCell cell = row.createCell(0);
+		HSSFCell cell = row.createCell(0);
 		cell.setCellValue("学生编号");
 		cell.setCellStyle(style);
 		cell = row.createCell(1);
@@ -86,6 +85,12 @@ public class ExportTest {
 			row.createCell(2).setCellValue(list.get(i).get("stuSex"));
 		}
 		
+		row = sheet.getRow(1);
+		cell = row.getCell(1);
+		HSSFCell ocell = row.getCell(0);
+		row.removeCell(ocell);
+		row.moveCell(cell, (short)0);
+		
 		try {
 			FileOutputStream fos = new FileOutputStream("E://学生表.xls");
 			wb.write(fos);
@@ -104,8 +109,8 @@ public class ExportTest {
 	@Test
 	public void testReadExcel(){
 		try {
-			File file = new File("F://test.xls");
-			String[][] date = readExcel(file, 1);
+			File file = new File("D:/git/cms/src/commons/export/djysgl-014-028.xls");
+			String[][] date = readExcel(file, 0);
 			for (int i = 0; i < date.length; i++) {
 				for (int j = 0; j < date[i].length; j++) {
 					System.out.print(date[i][j] + "、");
@@ -157,6 +162,11 @@ public class ExportTest {
 			Arrays.fill(values, "");
 			for (int cellIndex = 0; cellIndex < rowSize; cellIndex++) {
 				cell = row.getCell(cellIndex);
+				
+				if (cell == null) {
+					continue;
+				}
+				
 				cell.setCellType(CellType.STRING);
 				isMerge = this.isMergedRegion(sheet, rowIndex, cell.getColumnIndex());
 				if (isMerge) {

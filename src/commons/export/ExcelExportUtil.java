@@ -53,7 +53,7 @@ public class ExcelExportUtil {
 	 */
 	public static void export(HttpServletRequest request,
 			HttpServletResponse response, String modelPath, String fileName,
-			List dataList, Map title, Map foot) throws IOException {
+			List dataList, Map title, Map foot, Map params) throws IOException {
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {// IE浏览器以及以IE为内核的浏览器
 			fileName = URLEncoder.encode(fileName, "UTF-8");
@@ -67,7 +67,7 @@ public class ExcelExportUtil {
 		// ExcelExportHandler excelExportHandler =
 		// getExcelExportHandler(tplPath);
 		ExcelExportHandler excelExportHandler = new ExcelExportHandler(tplPath);
-		excelExportHandler.process(dataList, title, foot).export(response,
+		excelExportHandler.process(dataList, title, foot, params).export(response,
 				fileName);
 	}
 }

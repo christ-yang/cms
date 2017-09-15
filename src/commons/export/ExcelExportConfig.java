@@ -118,9 +118,9 @@ public class ExcelExportConfig {
 			if ("rows.formatRowIdx".equals(keyCellValue)) {
 				cur.setFormatRowIdx(Integer.valueOf(valueCellValue) - 1);
 			} else if ("rows.formatColStartIdx".equals(keyCellValue)) {
-				cur.setFormatColStartIdx(valueCellValue.charAt(0) - 'A');
+				cur.setFormatColStartIdx(parseIndex(valueCellValue));
 			} else if ("rows.formatColEndIdx".equals(keyCellValue)) {
-				cur.setFormatColEndIdx(valueCellValue.charAt(0) - 'A');
+				cur.setFormatColEndIdx(parseIndex(valueCellValue));
 			} else if ("rows.varFormatRowIdx".equals(keyCellValue)) {
 				cur.setVarFormatRowIdx(Integer.valueOf(valueCellValue) - 1);
 			} else if ("rows.varName".equals(keyCellValue)) {
@@ -132,17 +132,25 @@ public class ExcelExportConfig {
 			} else if ("rows.titleRowEndIdx".equals(keyCellValue)) {
 				cur.setTitleRowEndIdx(Integer.valueOf(valueCellValue) - 1);
 			} else if ("rows.titleColStartIdx".equals(keyCellValue)) {
-				cur.setTitleColStartIdx(valueCellValue.charAt(0) - 'A');
+				cur.setTitleColStartIdx(parseIndex(valueCellValue));
 			} else if ("rows.titleColEndIdx".equals(keyCellValue)) {
-				cur.setTitleColEndIdx(valueCellValue.charAt(0) - 'A');
+				cur.setTitleColEndIdx(parseIndex(valueCellValue));
 			} else if ("rows.footRowStartIdx".equals(keyCellValue)) {
 				cur.setFootRowStartIdx(Integer.valueOf(valueCellValue) - 1);
 			} else if ("rows.footRowEndIdx".equals(keyCellValue)) {
 				cur.setFootRowEndIdx(Integer.valueOf(valueCellValue) - 1);
 			} else if ("rows.footColStartIdx".equals(keyCellValue)) {
-				cur.setFootColStartIdx(valueCellValue.charAt(0) - 'A');
+				cur.setFootColStartIdx(parseIndex(valueCellValue));
 			} else if ("rows.footColEndIdx".equals(keyCellValue)) {
-				cur.setFootColEndIdx(valueCellValue.charAt(0) - 'A');
+				cur.setFootColEndIdx(parseIndex(valueCellValue));
+			} else if ("rows.orgColStartIdx".equals(keyCellValue)) {
+				cur.setOrgColStartIdx(parseIndex(valueCellValue));
+			} else if ("rows.orgColEndIdx".equals(keyCellValue)) {
+				cur.setOrgColEndIdx(parseIndex(valueCellValue));
+			} else if ("rows.TXColStartIdx".equals(keyCellValue)) {
+				cur.setTXColStartIdx(parseIndex(valueCellValue));
+			} else if ("rows.TXColEndIdx".equals(keyCellValue)) {
+				cur.setTXColEndIdx(parseIndex(valueCellValue));
 			}
 		}
 
@@ -237,6 +245,19 @@ public class ExcelExportConfig {
 		}
 	}
 
+	private int parseIndex(String value) {
+		int index = 0;
+		if (StringUtil.isEmpty(value)) {
+			return index;
+		}
+		if (value.length() == 1) {
+			index = value.charAt(0) - 'A';
+		} else if (value.length() == 2) {
+			index = 26 + value.charAt(1) - 'A';
+		}
+		return index;
+	}
+	
 	/**
 	 * 解析文件合并单元格信息数据
 	 * 
@@ -303,6 +324,10 @@ public class ExcelExportConfig {
 		private int footRowEndIdx = -1;
 		private int footColStartIdx = -1;
 		private int footColEndIdx = -1;
+		private int orgColStartIdx = -1;
+		private int orgColEndIdx = -1;
+		private int TXColStartIdx = -1;
+		private int TXColEndIdx = -1;
 		private String[][] titleVarExps;
 		private HSSFCellStyle[][] titleCellStyles;
 		private HSSFCellStyle[][] footVarExps;
@@ -482,6 +507,38 @@ public class ExcelExportConfig {
 
 		public void setDataRowStyle(HSSFCellStyle dataRowStyle) {
 			this.dataRowStyle = dataRowStyle;
+		}
+
+		public int getTXColEndIdx() {
+			return TXColEndIdx;
+		}
+
+		public void setTXColEndIdx(int tXColEndIdx) {
+			TXColEndIdx = tXColEndIdx;
+		}
+
+		public int getTXColStartIdx() {
+			return TXColStartIdx;
+		}
+
+		public void setTXColStartIdx(int tXColStartIdx) {
+			TXColStartIdx = tXColStartIdx;
+		}
+
+		public int getOrgColStartIdx() {
+			return orgColStartIdx;
+		}
+
+		public void setOrgColStartIdx(int orgColStartIdx) {
+			this.orgColStartIdx = orgColStartIdx;
+		}
+
+		public int getOrgColEndIdx() {
+			return orgColEndIdx;
+		}
+
+		public void setOrgColEndIdx(int orgColEndIdx) {
+			this.orgColEndIdx = orgColEndIdx;
 		}
 	}
 }
