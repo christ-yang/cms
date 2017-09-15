@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -133,13 +134,7 @@ public class ExcelExportHandler {
 				}
 			}
 
-			for (int j = 0; j < cellStyles.length; j++) {
-				try {
-					sheet.autoSizeColumn(colStartIdx + j, true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			
 			// 处理单元格合并信息数据
 			Set<Integer> mergedRegions = config.getMergedRegions();
 			Iterator<Integer> mrIterator = mergedRegions.iterator();
@@ -190,13 +185,6 @@ public class ExcelExportHandler {
 			if (null != foot) {
 			}
 
-			String jgjb = (String) params.get("ORG_JGJB");
-			if (StringUtil.isNotEmpty(jgjb)) {
-				int orgColStartIdx = config.getOrgColStartIdx();
-				int orgColEndIdx = config.getOrgColEndIdx();
-				int colNum = (Integer.valueOf(jgjb)+1)/2;
-				this.deleteColumn(sheet, orgColStartIdx+colNum, orgColEndIdx);
-			}
 			String txjb = (String) params.get("DEP_TXJB");
 			if (StringUtil.isNotEmpty(txjb)) {
 				int orgColStartIdx = config.getOrgColStartIdx();
@@ -204,7 +192,21 @@ public class ExcelExportHandler {
 				int colNum = Integer.valueOf(txjb);
 				this.deleteColumn(sheet, orgColStartIdx+colNum, orgColEndIdx);
 			}
+			String jgjb = (String) params.get("ORG_JGJB");
+			if (StringUtil.isNotEmpty(jgjb)) {
+				int orgColStartIdx = config.getOrgColStartIdx();
+				int orgColEndIdx = config.getOrgColEndIdx();
+				int colNum = (Integer.valueOf(jgjb)+1)/2;
+				this.deleteColumn(sheet, orgColStartIdx+colNum, orgColEndIdx);
+			}
 			
+			for (int j = 0; j < cellStyles.length; j++) {
+				try {
+					sheet.autoSizeColumn(colStartIdx + j, true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return this;
 	}
@@ -222,49 +224,92 @@ public class ExcelExportHandler {
 			return;
 		}
 		
-		//处理合并的单元格
-		List<CellRangeAddress> mergedRegions = sheet.getMergedRegions();
-		//删除单元格
+		Set<CellRangeAddress> mergedRegions = new HashSet<CellRangeAddress>();
+		//拆分单元格
+		CellRangeAddress mergedRegion = null;
+		int firstRow = 0;
+		int lastRow = 0;
+		int firstColumn = 0;
+		int lastColumn = 0;
+		HSSFRow row = null;
+		HSSFCell ocell = null;
+		HSSFCell ncell = null;
 		int numMergedRegions = sheet.getNumMergedRegions();
-		for (int i = 0; i < numMergedRegions; i++) {
-			sheet.removeMergedRegion(i);
+		while (numMergedRegions != 0) {
+			for (int i = 0; i < numMergedRegions; i++) {
+				mergedRegion = sheet.getMergedRegion(i);
+				mergedRegions.add(mergedRegion);
+				sheet.removeMergedRegion(i);
+			}
+			numMergedRegions = sheet.getNumMergedRegions();
+		}
+		String value;
+		for (Iterator<CellRangeAddress> iterator = mergedRegions.iterator(); iterator.hasNext();) {
+			mergedRegion = iterator.next();
+			if (mergedRegion == null) {
+				continue;
+			}
+			firstRow = mergedRegion.getFirstRow();
+			lastRow = mergedRegion.getLastRow();
+			firstColumn = mergedRegion.getFirstColumn();
+			lastColumn = mergedRegion.getLastColumn();
+			ocell = sheet.getRow(firstRow).getCell(firstColumn);
+			value = ocell.getStringCellValue();
+			for (int j = firstRow; j <= lastRow; j++) {
+				row = sheet.getRow(j);
+				for (int k = firstColumn; k <= lastColumn; k++) {
+					ncell = row.getCell(k);
+					ncell.setCellValue(value);
+				}
+			}
 		}
 		
 		//删除列
-		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-			HSSFRow row = sheet.getRow(i);
+		for (Iterator<Row> rowIterator = sheet.rowIterator(); rowIterator.hasNext();) {
+			row = (HSSFRow) rowIterator.next();
 			
 			//row不存在，跳过
 			if (row == null) {
 				continue;
 			}
 			
-			int lastColumn = row.getLastCellNum();
+			lastColumn = row.getLastCellNum();
 			if (lastColumn < delStartColumn || lastColumn < delEndColumn) {
 				continue;
 			}
 			for (int j = delStartColumn; j <= lastColumn; j++) {
-				HSSFCell ocell =row.getCell(j);
-				row.removeCell(ocell);
-				HSSFCell ncell = row.getCell(j+delColNum);
-				row.moveCell(ncell, (short) j);
+				ocell =row.getCell(j);
+				if (ocell != null) {
+					row.removeCell(ocell);
+				}
+				ncell = row.getCell(j+delColNum);
+			
+				if (ncell != null) {
+					row.moveCell(ncell, (short) j);
+				}
 			}
 		}
 		
 		//合并单元格
-		CellRangeAddress cellRangeAddress = null;
 		int fColumn = 0;
 		int lColumn = 0;
-		for (int i = 0; i < mergedRegions.size(); i++) {
-			cellRangeAddress = mergedRegions.get(i);
-			fColumn = cellRangeAddress.getFirstColumn();
-			lColumn = cellRangeAddress.getLastColumn();
-			if (fColumn > delEndColumn) {
-				cellRangeAddress.setFirstColumn(fColumn-delColNum);
-				cellRangeAddress.setLastColumn(lColumn-delColNum);
-				sheet.addMergedRegion(cellRangeAddress);
-			} else if (lColumn < delStartColumn) {
-				sheet.addMergedRegion(cellRangeAddress);
+		CellRangeAddress cellRangeAddress = null;
+		Iterator<CellRangeAddress> iterator = mergedRegions.iterator();
+		while (iterator.hasNext()) {
+			cellRangeAddress = iterator.next();
+			if (cellRangeAddress != null) {
+				fColumn = cellRangeAddress.getFirstColumn();
+				lColumn = cellRangeAddress.getLastColumn();
+				if (fColumn > delEndColumn) {
+					cellRangeAddress.setFirstColumn(fColumn-delColNum);
+					cellRangeAddress.setLastColumn(lColumn-delColNum);
+					sheet.addMergedRegion(cellRangeAddress);
+				} else if (fColumn < delStartColumn && lColumn > delEndColumn) {
+					cellRangeAddress.setLastColumn(lColumn-delColNum);
+					sheet.addMergedRegion(cellRangeAddress);
+				} else if (lColumn < delStartColumn) {
+					sheet.addMergedRegion(cellRangeAddress);
+				}
 			}
 		}
 		
