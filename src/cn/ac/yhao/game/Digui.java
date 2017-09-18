@@ -1,4 +1,4 @@
-package me.yhao.game;
+package cn.ac.yhao.game;
 
 import java.math.BigInteger;
 

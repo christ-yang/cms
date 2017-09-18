@@ -1,4 +1,4 @@
-package me.yhao.singleton;
+package cn.ac.yhao.singleton;
 
 /**
  * @author yhao

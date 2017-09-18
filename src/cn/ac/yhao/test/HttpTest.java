@@ -1,4 +1,4 @@
-package me.yhao.test;
+package cn.ac.yhao.test;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

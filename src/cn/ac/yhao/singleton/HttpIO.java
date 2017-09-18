@@ -1,4 +1,4 @@
-package me.yhao.singleton;
+package cn.ac.yhao.singleton;
 
 /**
  * 饿汉式单例模式（一开始就创建对象，线程安全）

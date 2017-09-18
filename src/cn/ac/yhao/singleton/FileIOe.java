@@ -1,4 +1,4 @@
-package me.yhao.singleton;
+package cn.ac.yhao.singleton;
 
 /**
  * 通过枚举实现单例模式
