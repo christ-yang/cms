@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="http://www.jeasyui.net/Public/js/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('#dd').tooltip({
+			    position: 'right',
+			    content: '<span style="color:#fff">This is the tooltip message.</span>',
+			    showEvent: 'click'
+			});
+		});
+		
+	</script>
+</head>
+<body>
+<input id="dd" />
+</body>
+</html>
