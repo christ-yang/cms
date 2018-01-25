@@ -67,13 +67,12 @@
 			<artifactId>spring-core</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+		<!-- xml解析包 poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.16</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>

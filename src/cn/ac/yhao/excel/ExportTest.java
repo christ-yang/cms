@@ -1,4 +1,4 @@
-package cn.ac.yhao.export;
+package cn.ac.yhao.excel;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -94,6 +94,7 @@ public class ExportTest {
 		try {
 			FileOutputStream fos = new FileOutputStream("E://学生表.xls");
 			wb.write(fos);
+			fos.flush();
 			fos.close();
 			wb.close();
 			JOptionPane.showMessageDialog(null, "导出成功！");
